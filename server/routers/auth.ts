@@ -27,12 +27,28 @@ const dateOfBirthSchema = z
     return age >= 18;
   }, "You must be at least 18 years old");
 
+  const passwordSchema = z
+  .string()
+  .min(8, { message: "Password must be at least 8 characters long" })
+  .refine((val) => /[a-z]/.test(val), {
+    message: "Password must contain at least one lowercase letter",
+  })
+  .refine((val) => /[A-Z]/.test(val), {
+    message: "Password must contain at least one uppercase letter",
+  })
+  .refine((val) => /\d/.test(val), {
+    message: "Password must contain at least one number",
+  })
+  .refine((val) => /[^A-Za-z0-9]/.test(val), {
+    message: "Password must contain at least one special character",
+  });
+
 export const authRouter = router({
   signup: publicProcedure
     .input(
       z.object({
         email: z.string().email().toLowerCase(),
-        password: z.string().min(8),
+        password: passwordSchema,
         firstName: z.string().min(1),
         lastName: z.string().min(1),
         phoneNumber: z.string().regex(/^\+?\d{10,15}$/),
