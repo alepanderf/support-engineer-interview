@@ -17,6 +17,27 @@ type FundingFormData = {
   routingNumber?: string;
 };
 
+function passesLuhn(cardNumber: string): boolean {
+  const digits = cardNumber.replace(/\s+/g, "");
+  if (!/^\d{13,19}$/.test(digits)) return false;
+
+  let sum = 0;
+  let shouldDouble = false;
+
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let digit = parseInt(digits[i], 10);
+    if (shouldDouble) {
+      digit *= 2;
+      if (digit > 9) digit -= 9;
+    }
+    sum += digit;
+    shouldDouble = !shouldDouble;
+  }
+
+  return sum % 10 === 0;
+}
+
+
 export function FundingModal({ accountId, onClose, onSuccess }: FundingModalProps) {
   const [error, setError] = useState("");
   const {
@@ -39,14 +60,24 @@ export function FundingModal({ accountId, onClose, onSuccess }: FundingModalProp
     try {
       const amount = parseFloat(data.amount);
 
+      // Build a properly-typed fundingSource object
+      const fundingSource =
+      data.fundingType === "card"
+        ? {
+            type: "card" as const,
+            accountNumber: data.accountNumber,
+            routingNumber: data.routingNumber, // optional is fine
+          }
+        : {
+            type: "bank" as const,
+            accountNumber: data.accountNumber,
+            routingNumber: data.routingNumber!, // required for bank, validation guarantees it
+          };
+
       await fundAccountMutation.mutateAsync({
         accountId,
         amount,
-        fundingSource: {
-          type: data.fundingType,
-          accountNumber: data.accountNumber,
-          routingNumber: data.routingNumber,
-        },
+        fundingSource,
       });
 
       onSuccess();
@@ -113,13 +144,13 @@ export function FundingModal({ accountId, onClose, onSuccess }: FundingModalProp
               {...register("accountNumber", {
                 required: `${fundingType === "card" ? "Card" : "Account"} number is required`,
                 pattern: {
-                  value: fundingType === "card" ? /^\d{16}$/ : /^\d+$/,
-                  message: fundingType === "card" ? "Card number must be 16 digits" : "Invalid account number",
+                  value: fundingType === "card" ? /^\d{13,19}$/ : /^\d+$/,
+                  message: fundingType === "card" ? "Card number must be between 13 and 19 digits" : "Invalid account number",
                 },
                 validate: {
                   validCard: (value) => {
                     if (fundingType !== "card") return true;
-                    return value.startsWith("4") || value.startsWith("5") || "Invalid card number";
+                    return passesLuhn(value) || "Card number failed validation";
                   },
                 },
               })}

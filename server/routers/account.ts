@@ -11,6 +11,47 @@ function generateAccountNumber(): string {
     .padStart(10, "0");
 }
 
+function passesLuhn(cardNumber: string): boolean {
+  const digits = cardNumber.replace(/\s+/g, "");
+  if (!/^\d{13,19}$/.test(digits)) return false;
+
+  let sum = 0;
+  let shouldDouble = false;
+
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let digit = parseInt(digits[i], 10);
+    if (shouldDouble) {
+      digit *= 2;
+      if (digit > 9) digit -= 9;
+    }
+    sum += digit;
+    shouldDouble = !shouldDouble;
+  }
+
+  return sum % 10 === 0;
+}
+
+const cardFundingSchema = z.object({
+  type: z.literal("card"),
+  accountNumber: z
+    .string()
+    .refine(passesLuhn, { message: "Card number is invalid" }),
+  routingNumber: z.string().optional(),
+});
+
+const bankFundingSchema = z.object({
+  type: z.literal("bank"),
+  accountNumber: z.string(), // can add more rules separately
+  routingNumber: z
+    .string()
+    .regex(/^\d{9}$/, { message: "Routing number must be 9 digits" }),
+});
+
+const fundingSourceSchema = z.discriminatedUnion("type", [
+  cardFundingSchema,
+  bankFundingSchema,
+]);
+
 export const accountRouter = router({
   createAccount: protectedProcedure
     .input(
@@ -78,11 +119,7 @@ export const accountRouter = router({
       z.object({
         accountId: z.number(),
         amount: z.number().positive(),
-        fundingSource: z.object({
-          type: z.enum(["card", "bank"]),
-          accountNumber: z.string(),
-          routingNumber: z.string().optional(),
-        }),
+        fundingSource: fundingSourceSchema,
       })
     )
     .mutation(async ({ input, ctx }) => {
