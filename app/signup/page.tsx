@@ -53,6 +53,7 @@ export default function SignupPage() {
   };
 
   const prevStep = () => setStep(step - 1);
+  const today = new Date();
 
   const onSubmit = async (data: SignupFormData) => {
     try {
@@ -189,7 +190,20 @@ export default function SignupPage() {
                   Date of Birth
                 </label>
                 <input
-                  {...register("dateOfBirth", { required: "Date of birth is required" })}
+                  {...register("dateOfBirth", { required: "Date of birth is required", validate: (value) => {
+                    const dob = new Date(value);
+                    if (isNaN(dob.getTime())) return "Invalid date";
+
+                    if (dob > today) return "Date of birth cannot be in the future";
+
+                    let age = today.getFullYear() - dob.getFullYear();
+                    const hasHadBirthdayThisYear =
+                      today.getMonth() > dob.getMonth() ||
+                      (today.getMonth() === dob.getMonth() && today.getDate() >= dob.getDate());
+                    if (!hasHadBirthdayThisYear) age -= 1;
+                  
+                    return age >= 18 || "You must be at least 18 years old";
+                  } })}
                   type="date"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
                 />

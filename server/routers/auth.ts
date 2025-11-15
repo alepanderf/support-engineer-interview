@@ -7,6 +7,26 @@ import { db } from "@/lib/db";
 import { users, sessions } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
+const dateOfBirthSchema = z
+  .string()
+  .refine((value) => {
+    const dob = new Date(value);
+    const today = new Date();
+
+    if (isNaN(dob.getTime())) return false;
+    if (dob > today) return false; // no future dates
+
+    // compute age
+    let age = today.getFullYear() - dob.getFullYear();
+    const hasHadBirthdayThisYear =
+      today.getMonth() > dob.getMonth() ||
+      (today.getMonth() === dob.getMonth() && today.getDate() >= dob.getDate());
+
+    if (!hasHadBirthdayThisYear) age -= 1;
+
+    return age >= 18;
+  }, "You must be at least 18 years old");
+
 export const authRouter = router({
   signup: publicProcedure
     .input(
@@ -16,7 +36,7 @@ export const authRouter = router({
         firstName: z.string().min(1),
         lastName: z.string().min(1),
         phoneNumber: z.string().regex(/^\+?\d{10,15}$/),
-        dateOfBirth: z.string(),
+        dateOfBirth: dateOfBirthSchema,
         ssn: z.string().regex(/^\d{9}$/),
         address: z.string().min(1),
         city: z.string().min(1),
