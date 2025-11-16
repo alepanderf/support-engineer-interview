@@ -45,7 +45,7 @@ const bankFundingSchema = z.object({
   accountNumber: z.string(), // can add more rules separately
   routingNumber: z
     .string()
-    .regex(/^\d{9}$/, { message: "Routing number must be 9 digits" }),
+    .regex(/^\d{9}$/, { message: "Routing number must be 9 digits" }), // US routing number format
 });
 
 const fundingSourceSchema = z.discriminatedUnion("type", [

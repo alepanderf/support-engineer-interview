@@ -71,7 +71,7 @@ export function FundingModal({ accountId, onClose, onSuccess }: FundingModalProp
           }
         : {
             type: "bank" as const,
-            accountNumber: data.accountNumber,
+            accountNumber: data.accountNumber, // code already passes VAL-207
             routingNumber: data.routingNumber!, // required for bank, validation guarantees it
           };
 
