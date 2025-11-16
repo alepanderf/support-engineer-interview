@@ -37,6 +37,29 @@ function passesLuhn(cardNumber: string): boolean {
   return sum % 10 === 0;
 }
 
+type CardType = "visa" | "mastercard" | "amex" | "discover" | "jcb";
+
+function detectCardType(cardNumber: string): CardType | null {
+  const digits = cardNumber.replace(/\s+/g, "");
+
+  if (/^4\d{12}(\d{3})?(\d{3})?$/.test(digits)) return "visa";
+
+  if (
+    /^5[1-5]\d{14}$/.test(digits) ||
+    /^2(2[2-9]\d{2}|[3-6]\d{3}|7[01]\d{2}|720\d{2})\d{10}$/.test(digits)
+  ) {
+    return "mastercard";
+  }
+
+  if (/^3[47]\d{13}$/.test(digits)) return "amex";
+
+  if (/^6(?:011|5\d{2}|4[4-9]\d)\d{12}$/.test(digits)) return "discover";
+
+  if (/^35(2[89]|[3-8]\d)\d{12}$/.test(digits)) return "jcb";
+
+  return null;
+}
+
 
 export function FundingModal({ accountId, onClose, onSuccess }: FundingModalProps) {
   const [error, setError] = useState("");
@@ -153,7 +176,14 @@ export function FundingModal({ accountId, onClose, onSuccess }: FundingModalProp
                 validate: {
                   validCard: (value) => {
                     if (fundingType !== "card") return true;
-                    return passesLuhn(value) || "Card number failed validation";
+                    if (!passesLuhn(value)) {
+                      return "Card number failed validation";
+                    }
+                    const type = detectCardType(value);
+                    if (!type) {
+                      return "Unsupported or unknown card type";
+                    }
+                    return true;
                   },
                 },
               })}

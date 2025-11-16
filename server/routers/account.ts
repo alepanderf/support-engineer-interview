@@ -32,11 +32,52 @@ function passesLuhn(cardNumber: string): boolean {
   return sum % 10 === 0;
 }
 
+type CardType = "visa" | "mastercard" | "amex" | "discover" | "jcb";
+
+function detectCardType(cardNumber: string): CardType | null {
+  const digits = cardNumber.replace(/\s+/g, "");
+
+  // Visa: 13–16 digits, starting with 4
+  if (/^4\d{12}(\d{3})?(\d{3})?$/.test(digits)) {
+    return "visa";
+  }
+
+  // Mastercard:
+  // - Old range: 51–55
+  // - New range: 2221–2720
+  if (
+    /^5[1-5]\d{14}$/.test(digits) ||
+    /^2(2[2-9]\d{2}|[3-6]\d{3}|7[01]\d{2}|720\d{2})\d{10}$/.test(digits)
+  ) {
+    return "mastercard";
+  }
+
+  // American Express: 34 or 37, 15 digits
+  if (/^3[47]\d{13}$/.test(digits)) {
+    return "amex";
+  }
+
+  // Discover: 6011, 65, 644–649 (common ranges)
+  if (/^6(?:011|5\d{2}|4[4-9]\d)\d{12}$/.test(digits)) {
+    return "discover";
+  }
+
+  // JCB: 3528–3589, 16 digits (simplified)
+  if (/^35(2[89]|[3-8]\d)\d{12}$/.test(digits)) {
+    return "jcb";
+  }
+
+  return null;
+}
+
 const cardFundingSchema = z.object({
   type: z.literal("card"),
   accountNumber: z
     .string()
-    .refine(passesLuhn, { message: "Card number is invalid" }),
+    .refine(passesLuhn, { message: "Card number is invalid" })
+    .refine((val) => detectCardType(val) !== null, {
+      message: "Unsupported or unknown card type",
+    }),
   routingNumber: z.string().optional(),
 });
 
