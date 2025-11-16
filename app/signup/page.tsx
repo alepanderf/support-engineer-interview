@@ -54,6 +54,14 @@ export default function SignupPage() {
 
   const prevStep = () => setStep(step - 1);
   const today = new Date();
+  const US_STATE_CODES = [
+    "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
+    "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
+    "MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
+    "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
+    "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY",
+    "DC","PR",
+  ] as const;
 
   const onSubmit = async (data: SignupFormData) => {
     try {
@@ -299,9 +307,11 @@ export default function SignupPage() {
                   <input
                     {...register("state", {
                       required: "State is required",
-                      pattern: {
-                        value: /^[A-Z]{2}$/,
-                        message: "Use 2-letter state code",
+                      validate: (value) => {
+                        const upper = value.toUpperCase();
+                        return (
+                          US_STATE_CODES.includes(upper as any) || "Invalid state code"
+                        );
                       },
                     })}
                     type="text"

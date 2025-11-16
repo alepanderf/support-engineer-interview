@@ -52,6 +52,25 @@ const emailSchema = z
     message: "Email domain looks invalid (did you mean .com instead of .con?)",
   });
 
+  const US_STATE_CODES = [
+    "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
+    "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
+    "MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
+    "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
+    "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY",
+    "DC","PR",
+  ] as const;
+
+  type USStateCode = (typeof US_STATE_CODES)[number];
+
+  const stateCodeSchema = z
+    .string()
+    .length(2)
+    .transform((val) => val.toUpperCase())
+    .refine((val) => US_STATE_CODES.includes(val as USStateCode), {
+      message: "Invalid state code",
+    });
+
 export const authRouter = router({
   signup: publicProcedure
     .input(
@@ -65,7 +84,7 @@ export const authRouter = router({
         ssn: z.string().regex(/^\d{9}$/),
         address: z.string().min(1),
         city: z.string().min(1),
-        state: z.string().length(2).toUpperCase(),
+        state: stateCodeSchema,
         zipCode: z.string().regex(/^\d{5}$/),
       })
     )
