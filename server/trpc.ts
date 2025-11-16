@@ -6,6 +6,8 @@ import { db } from "@/lib/db";
 import { sessions, users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
+const SESSION_EXPIRY_SAFETY_WINDOW_MS = 90_000;
+
 export async function createContext(opts: CreateNextContextOptions | FetchCreateContextFnOptions) {
   // Handle different adapter types
   let req: any;
@@ -54,11 +56,19 @@ export async function createContext(opts: CreateNextContextOptions | FetchCreate
 
       const session = await db.select().from(sessions).where(eq(sessions.token, token)).get();
 
-      if (session && new Date(session.expiresAt) > new Date()) {
-        user = await db.select().from(users).where(eq(users.id, decoded.userId)).get();
-        const expiresIn = new Date(session.expiresAt).getTime() - new Date().getTime();
-        if (expiresIn < 60000) {
-          console.warn("Session about to expire");
+      if (session) {
+        const now = Date.now();
+        const expiresAt = new Date(session.expiresAt).getTime();
+        const expiresIn = expiresAt - now;
+      
+        // If session is expired or within the safety window, treat as invalid
+        if (expiresIn <= SESSION_EXPIRY_SAFETY_WINDOW_MS) {
+          // Optional: clean up the session row
+          await db.delete(sessions).where(eq(sessions.id, session.id));
+          console.warn("Session expired or too close to expiry; forcing re-authentication");
+        } else {
+          // Session is sufficiently valid; attach user to context
+          user = await db.select().from(users).where(eq(users.id, decoded.userId)).get();
         }
       }
     } catch (error) {
