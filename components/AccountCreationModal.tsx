@@ -41,7 +41,10 @@ export function AccountCreationModal({ onClose, onSuccess }: AccountCreationModa
                   value="checking"
                   checked={accountType === "checking"}
                   onChange={(e) => setAccountType(e.target.value as "checking")}
-                  className="mr-2"
+                  className="mt-1 block w-full rounded-md border p-2 sm:text-sm
+                  bg-white text-gray-900 border-gray-300
+                  dark:bg-gray-900 dark:text-gray-100 dark:border-gray-600
+                  focus:ring-blue-500 focus:border-blue-500"
                 />
                 <span>Checking Account</span>
               </label>
@@ -51,7 +54,10 @@ export function AccountCreationModal({ onClose, onSuccess }: AccountCreationModa
                   value="savings"
                   checked={accountType === "savings"}
                   onChange={(e) => setAccountType(e.target.value as "savings")}
-                  className="mr-2"
+                  className="mt-1 block w-full rounded-md border p-2 sm:text-sm
+                  bg-white text-gray-900 border-gray-300
+                  dark:bg-gray-900 dark:text-gray-100 dark:border-gray-600
+                  focus:ring-blue-500 focus:border-blue-500"
                 />
                 <span>Savings Account</span>
               </label>

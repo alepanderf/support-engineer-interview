@@ -141,7 +141,10 @@ export function FundingModal({ accountId, onClose, onSuccess }: FundingModalProp
                   },
                 })}
                 type="text"
-                className="pl-7 block w-full rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2 border"
+                className="mt-1 block w-full rounded-md border p-2 sm:text-sm
+                bg-white text-gray-900 border-gray-300
+                dark:bg-gray-900 dark:text-gray-100 dark:border-gray-600
+                focus:ring-blue-500 focus:border-blue-500"
                 placeholder="0.00"
               />
             </div>
@@ -152,11 +155,23 @@ export function FundingModal({ accountId, onClose, onSuccess }: FundingModalProp
             <label className="block text-sm font-medium text-gray-700 mb-2">Funding Source</label>
             <div className="space-y-2">
               <label className="flex items-center">
-                <input {...register("fundingType")} type="radio" value="card" className="mr-2" />
+                <input {...register("fundingType")} 
+                  type="radio" 
+                  value="card" 
+                  className="mt-1 block w-full rounded-md border p-2 sm:text-sm
+                  bg-white text-gray-900 border-gray-300
+                  dark:bg-gray-900 dark:text-gray-100 dark:border-gray-600
+                  focus:ring-blue-500 focus:border-blue-500" />
                 <span>Credit/Debit Card</span>
               </label>
               <label className="flex items-center">
-                <input {...register("fundingType")} type="radio" value="bank" className="mr-2" />
+                <input {...register("fundingType")} 
+                  type="radio" 
+                  value="bank" 
+                  className="mt-1 block w-full rounded-md border p-2 sm:text-sm
+                  bg-white text-gray-900 border-gray-300
+                  dark:bg-gray-900 dark:text-gray-100 dark:border-gray-600
+                  focus:ring-blue-500 focus:border-blue-500" />
                 <span>Bank Account</span>
               </label>
             </div>
@@ -188,7 +203,10 @@ export function FundingModal({ accountId, onClose, onSuccess }: FundingModalProp
                 },
               })}
               type="text"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+              className="mt-1 block w-full rounded-md border p-2 sm:text-sm
+              bg-white text-gray-900 border-gray-300
+              dark:bg-gray-900 dark:text-gray-100 dark:border-gray-600
+              focus:ring-blue-500 focus:border-blue-500"
               placeholder={fundingType === "card" ? "1234567812345678" : "123456789"}
             />
             {errors.accountNumber && <p className="mt-1 text-sm text-red-600">{errors.accountNumber.message}</p>}
@@ -206,7 +224,10 @@ export function FundingModal({ accountId, onClose, onSuccess }: FundingModalProp
                   },
                 })}
                 type="text"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                className="mt-1 block w-full rounded-md border p-2 sm:text-sm
+                bg-white text-gray-900 border-gray-300
+                dark:bg-gray-900 dark:text-gray-100 dark:border-gray-600
+                focus:ring-blue-500 focus:border-blue-500"
                 placeholder="123456789"
               />
               {errors.routingNumber && <p className="mt-1 text-sm text-red-600">{errors.routingNumber.message}</p>}

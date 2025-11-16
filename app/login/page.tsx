@@ -54,7 +54,10 @@ export default function LoginPage() {
                   },
                 })}
                 type="email"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                className="mt-1 block w-full rounded-md border p-2 sm:text-sm
+                bg-white text-gray-900 border-gray-300
+                dark:bg-gray-900 dark:text-gray-100 dark:border-gray-600
+                focus:ring-blue-500 focus:border-blue-500"
               />
               {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
             </div>
@@ -66,7 +69,10 @@ export default function LoginPage() {
               <input
                 {...register("password", { required: "Password is required" })}
                 type="password"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                className="mt-1 block w-full rounded-md border p-2 sm:text-sm
+                bg-white text-gray-900 border-gray-300
+                dark:bg-gray-900 dark:text-gray-100 dark:border-gray-600
+                focus:ring-blue-500 focus:border-blue-500"
               />
               {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
             </div>
