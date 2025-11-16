@@ -4,11 +4,12 @@ import { protectedProcedure, router } from "../trpc";
 import { db } from "@/lib/db";
 import { accounts, transactions } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
+import { randomInt } from "crypto";
 
 function generateAccountNumber(): string {
-  return Math.floor(Math.random() * 1000000000)
-    .toString()
-    .padStart(10, "0");
+  // Generate a cryptographically secure random 10-digit number
+  const num = randomInt(0, 10 ** 10); // 0 to 9,999,999,999 inclusive
+  return num.toString().padStart(10, "0");
 }
 
 function passesLuhn(cardNumber: string): boolean {
