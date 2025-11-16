@@ -128,7 +128,7 @@ export function FundingModal({ accountId, onClose, onSuccess }: FundingModalProp
                 {...register("amount", {
                   required: "Amount is required",
                   pattern: {
-                    value: /^\d+\.?\d{0,2}$/,
+                    value: /^(0|[1-9]\d*)(\.\d{1,2})?$/,
                     message: "Invalid amount format",
                   },
                   min: {
