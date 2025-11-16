@@ -109,7 +109,7 @@ export function FundingModal({ accountId, onClose, onSuccess }: FundingModalProp
                     message: "Invalid amount format",
                   },
                   min: {
-                    value: 0.0,
+                    value: 0.01,
                     message: "Amount must be at least $0.01",
                   },
                   max: {

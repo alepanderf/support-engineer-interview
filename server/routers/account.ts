@@ -117,7 +117,12 @@ export const accountRouter = router({
     .input(
       z.object({
         accountId: z.number(),
-        amount: z.number().positive(),
+        amount: z
+          .number()
+          .positive()
+          .refine((val) => val >= 0.01, {
+            message: "Amount must be at least $0.01",
+          }),
         fundingSource: fundingSourceSchema,
       })
     )
