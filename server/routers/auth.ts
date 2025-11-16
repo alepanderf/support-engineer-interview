@@ -27,7 +27,7 @@ const dateOfBirthSchema = z
     return age >= 18;
   }, "You must be at least 18 years old");
 
-  const passwordSchema = z
+const passwordSchema = z
   .string()
   .min(8, { message: "Password must be at least 8 characters long" })
   .refine((val) => /[a-z]/.test(val), {
@@ -43,11 +43,20 @@ const dateOfBirthSchema = z
     message: "Password must contain at least one special character",
   });
 
+const emailSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .email()
+  .refine((val) => !val.endsWith(".con"), {
+    message: "Email domain looks invalid (did you mean .com instead of .con?)",
+  });
+
 export const authRouter = router({
   signup: publicProcedure
     .input(
       z.object({
-        email: z.string().email().toLowerCase(),
+        email: emailSchema,
         password: passwordSchema,
         firstName: z.string().min(1),
         lastName: z.string().min(1),
@@ -119,7 +128,7 @@ export const authRouter = router({
   login: publicProcedure
     .input(
       z.object({
-        email: z.string().email(),
+        email: emailSchema,
         password: z.string(),
       })
     )
