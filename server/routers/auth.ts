@@ -2,7 +2,7 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { TRPCError } from "@trpc/server";
-import { publicProcedure, router } from "../trpc";
+import { publicProcedure, router, protectedProcedure } from "../trpc";
 import { db } from "@/lib/db";
 import { users, sessions } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -199,21 +199,27 @@ export const authRouter = router({
       return { user: { ...user, password: undefined }, token };
     }),
 
-  logout: publicProcedure.mutation(async ({ ctx }) => {
-    if (ctx.user) {
-      // Delete session from database
-      let token: string | undefined;
-      if ("cookies" in ctx.req) {
-        token = (ctx.req as any).cookies.session;
-      } else {
-        const cookieHeader = ctx.req.headers.get?.("cookie") || (ctx.req.headers as any).cookie;
-        token = cookieHeader
-          ?.split("; ")
-          .find((c: string) => c.startsWith("session="))
-          ?.split("=")[1];
-      }
-      if (token) {
+  logout: protectedProcedure.mutation(async ({ ctx }) => {
+    let token: string | undefined;
+
+    // Extract session token the same way as in createContext
+    if ("cookies" in ctx.req) {
+      token = (ctx.req as any).cookies.session;
+    } else {
+      const cookieHeader = ctx.req.headers.get?.("cookie") || (ctx.req.headers as any).cookie;
+      token = cookieHeader
+        ?.split("; ")
+        .find((c: string) => c.startsWith("session="))
+        ?.split("=")[1];
+    }
+
+    let sessionDeleted = false;
+
+    if (token) {
+      const session = await db.select().from(sessions).where(eq(sessions.token, token)).get();
+      if (session) {
         await db.delete(sessions).where(eq(sessions.token, token));
+        sessionDeleted = true;
       }
     }
 
@@ -223,6 +229,9 @@ export const authRouter = router({
       (ctx.res as Headers).set("Set-Cookie", `session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0`);
     }
 
-    return { success: true, message: ctx.user ? "Logged out successfully" : "No active session" };
+    return {
+      success: sessionDeleted,
+      message: sessionDeleted ? "Logged out successfully" : "No active session to log out",
+    };
   }),
 });
