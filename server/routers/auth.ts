@@ -79,7 +79,11 @@ export const authRouter = router({
         password: passwordSchema,
         firstName: z.string().min(1),
         lastName: z.string().min(1),
-        phoneNumber: z.string().regex(/^\+?\d{10,15}$/),
+        phoneNumber: z
+          .string()
+          .regex(/^\+[1-9]\d{9,14}$/, {
+            message: "Phone number must be in international format, e.g. +14155550123",
+          }),
         dateOfBirth: dateOfBirthSchema,
         ssn: z.string().regex(/^\d{9}$/),
         address: z.string().min(1),

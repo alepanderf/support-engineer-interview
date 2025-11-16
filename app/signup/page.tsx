@@ -201,12 +201,12 @@ export default function SignupPage() {
                   {...register("phoneNumber", {
                     required: "Phone number is required",
                     pattern: {
-                      value: /^\d{10}$/,
-                      message: "Phone number must be 10 digits",
+                      value: /^\+[1-9]\d{9,14}$/,
+                      message: "Use international format, e.g. +14155550123",
                     },
                   })}
                   type="tel"
-                  placeholder="1234567890"
+                  placeholder="+14155550123"
                   className="mt-1 block w-full rounded-md border p-2 sm:text-sm
                   bg-white text-gray-900 border-gray-300
                   dark:bg-gray-900 dark:text-gray-100 dark:border-gray-600
